@@ -15,8 +15,6 @@
  */
 
 package me.tatarka
-import com.android.build.gradle.AppPlugin
-import com.android.build.gradle.LibraryPlugin
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -31,7 +29,7 @@ import org.gradle.api.plugins.JavaPlugin
  * To change this template use File | Settings | File Templates.
  */
 public class RetrolambdaPlugin implements Plugin<Project> {
-    protected static def retrolambdaCompile = "net.orfjackal.retrolambda:retrolambda:1.8.0"
+    protected static def retrolambdaCompile = "net.orfjackal.retrolambda:retrolambda:2.0.5"
 
     @Override
     void apply(Project project) {
@@ -45,6 +43,7 @@ public class RetrolambdaPlugin implements Plugin<Project> {
             !task.name.equals('compileRetrolambda') && task.name.startsWith('compileRetrolambda')
         })  {
             description = "Converts all java 8 class files to java 6 or 7"
+            group = "build"
         }
 
         project.plugins.withType(JavaPlugin) {
@@ -55,11 +54,11 @@ public class RetrolambdaPlugin implements Plugin<Project> {
             project.apply plugin: RetrolambdaPluginGroovy
         }
 
-        project.plugins.withType(AppPlugin) {
+        project.plugins.withId('com.android.application') {
             project.apply plugin: RetrolambdaPluginAndroid
         }
 
-        project.plugins.withType(LibraryPlugin) {
+        project.plugins.withId('com.android.library') {
             project.apply plugin: RetrolambdaPluginAndroid
         }
 
@@ -68,10 +67,6 @@ public class RetrolambdaPlugin implements Plugin<Project> {
         }
 
         project.afterEvaluate {
-            if (!project.retrolambda.incremental) {
-                project.logger.warn("setting retrolambda.incremental to false has no effect")
-            }
-
             def config = project.configurations.retrolambdaConfig
 
             if (config.dependencies.isEmpty()) {
@@ -93,12 +88,11 @@ public class RetrolambdaPlugin implements Plugin<Project> {
 
     static int javaVersionToBytecode(JavaVersion v) {
         switch (v.majorVersion) {
+            case '5': return 49
             case '6': return 50
-                break
             case '7': return 51
-                break
             default:
-                throw new RuntimeException("Unknown java version: $v, only 6 or 7 are accepted")
+                throw new RuntimeException("Unknown java version: $v, only 5, 6 or 7 are accepted")
         }
     }
 }

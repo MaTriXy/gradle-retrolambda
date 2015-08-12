@@ -33,8 +33,8 @@ public class RetrolambdaExtension {
     List<String> excludes = []
     List<String> includes = []
     List<String> jvmArgs = []
-    @Deprecated
     boolean incremental = true
+    boolean defaultMethods = false
     boolean isOnJava8 = System.properties.'java.version'.startsWith('1.8')
 
     private String jdk = null
@@ -58,9 +58,16 @@ public class RetrolambdaExtension {
         jvmArgs.addAll(args)
     }
     
-    @Deprecated
     public void incremental(boolean value) {
-        incremental = value;
+        incremental = value
+    }
+    
+    public void defaultMethods(boolean value) {
+        defaultMethods = value
+    }
+    
+    public boolean getIncremental() {
+        return incremental && !defaultMethods
     }
 
     public void setBytecodeVersion(int v) {
@@ -75,6 +82,7 @@ public class RetrolambdaExtension {
 
     public JavaVersion getJavaVersion() {
         switch (bytecodeVersion) {
+            case 49: return JavaVersion.VERSION_1_5
             case 50: return JavaVersion.VERSION_1_6
             case 51: return JavaVersion.VERSION_1_7
         }
@@ -90,7 +98,7 @@ public class RetrolambdaExtension {
 
     String tryGetJdk() {
         if (jdk == null) {
-            throw new ProjectConfigurationException("When running gradle with java 6 or 7, you must set the path to jdk8, either with property retrolambda.jdk or environment variable JAVA8_HOME", null)
+            throw new ProjectConfigurationException("When running gradle with java 5, 6 or 7, you must set the path to jdk8, either with property retrolambda.jdk or environment variable JAVA8_HOME", null)
         }
         return jdk
     }
@@ -106,22 +114,22 @@ public class RetrolambdaExtension {
 
     String tryGetOldJdk() {
         if (oldJdk == null) {
-            throw new ProjectConfigurationException("When running gradle with java 8, you must set the path to the old jdk, either with property retrolambda.oldJdk or environment variable JAVA6_HOME/JAVA7_HOME", null)
+            throw new ProjectConfigurationException("When running gradle with java 8, you must set the path to the old jdk, either with property retrolambda.oldJdk or environment variable JAVA5_HOME/JAVA6_HOME/JAVA7_HOME", null)
         }
         return oldJdk
     }
 
     public boolean isIncluded(String name) {
         if (includes.isEmpty() && excludes.isEmpty()) return true
-        if (excludes.isEmpty() && excludes.contains(name)) return false;
-        if (includes.isEmpty() && !includes.contains(name)) return false;
+        if (excludes.isEmpty() && !includes.contains(name)) return false;
+        if (includes.isEmpty() && excludes.contains(name)) return false;
         return true
     }
 
     public boolean isOnJava8() {
         return isOnJava8;
     }
-
+    
     private String findJdk() {
         if (isOnJava8) {
             return findCurrentJdk()
@@ -135,6 +143,7 @@ public class RetrolambdaExtension {
             return findCurrentJdk()
         } else {
             switch (bytecodeVersion) {
+                case 49: return System.getenv("JAVA5_HOME")
                 case 50: return System.getenv("JAVA6_HOME")
                 case 51: return System.getenv("JAVA7_HOME")
             }
