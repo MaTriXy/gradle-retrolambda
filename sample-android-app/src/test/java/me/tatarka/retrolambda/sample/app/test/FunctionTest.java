@@ -20,19 +20,19 @@ import static org.mockito.Mockito.when;
 @RunWith(JUnit4.class)
 public class FunctionTest {
     MyModule module = new MyModule();
-    
+
     @Test
     public void testGetHello() {
         Resources res = mock(Resources.class);
-        when(res.getString(R.string.hello)).thenReturn("Hello, retrolambda!");
-        assertThat(module.provideHello().run(res)).isEqualTo("Hello, retrolambda!");
+        when(res.getString(R.string.hello)).thenReturn("Hello, Retrolambda!");
+        assertThat(module.provideHello().run(res)).isEqualTo("Hello, Retrolambda!");
     }
 
     @Test
     public void testGetHelloLib() {
-        assertThat(module.provideLibHello().run()).isEqualTo("Hello, retrolambda (from lib)!");
+        assertThat(module.provideLibHello().run()).isEqualTo("Hello, Retrolambda (from lib, mode a)!");
     }
-    
+
     @Test
     public void testLambdaInTest() {
         ResFunction lambda = (res) -> "test";

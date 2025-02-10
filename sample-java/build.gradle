@@ -1,6 +1,5 @@
 buildscript {
     repositories {
-        mavenLocal()
         mavenCentral()
     }
 
@@ -30,9 +29,5 @@ jar {
 }
 
 retrolambda {
-    javaVersion JavaVersion.VERSION_1_5
-}
-
-task buildscriptDependencies << {
-    println project.buildscript.configurations.classpath.asPath
+    javaVersion JavaVersion.VERSION_1_6
 }
